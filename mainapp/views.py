@@ -14,6 +14,7 @@ class NewsPageView(TemplateView):
         context [
             "news_preview"
         ]= "Preliminary discription"
+        context["range"]=range(5)
         return context
 
 
