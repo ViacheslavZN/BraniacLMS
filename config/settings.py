@@ -12,8 +12,11 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 from pathlib import Path
 
+from social_core.backends.vk import VKOAuth2
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
@@ -26,8 +29,11 @@ SECRET_KEY = (
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ['*']
+if DEBUG:
+    INTERNAL_IPS = [
+        "127.0.0.1",
+    ]
 # Application definition
 
 INSTALLED_APPS = [
@@ -37,12 +43,15 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+
     "markdownify.apps.MarkdownifyConfig",
     "django_extensions",
     "social_django",
+    "crispy_forms", # pip install django-crispy-forms
+    "debug_toolbar", # pip install django-debug-toolbar pip install django-redis sudo apt install redis-server
+
     "mainapp",
     "authapp",
-    "crispy_forms",
 ]
 
 MIDDLEWARE = [
@@ -54,13 +63,19 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+if DEBUG:
+    MIDDLEWARE.append(
+        "debug_toolbar.middleware.DebugToolbarMiddleware"
+    )
 
 ROOT_URLCONF = "config.urls"
 
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": ['templates'],
+        "DIRS": [
+            "templates",
+        ],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -79,6 +94,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
+
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
@@ -88,6 +104,7 @@ DATABASES = {
         "NAME": BASE_DIR / "db.sqlite3",
     }
 }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
@@ -114,6 +131,7 @@ LOGOUT_REDIRECT_URL = "mainapp:main_page"
 
 MESSAGE_STORAGE = "django.contrib.messages.storage.session.SessionStorage"
 
+
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
@@ -126,6 +144,7 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
@@ -155,19 +174,20 @@ AUTHENTICATION_BACKENDS = (
 SOCIAL_AUTH_GITHUB_KEY = "c9ec0cf4778bc1535f4c"
 SOCIAL_AUTH_GITHUB_SECRET = "cae481533ab73098c4bb11fbe73a46c847dfaa32"
 
-SOCIAL_AUTH_VK_OAUTH2_KEY = '8112501'  # ID приложения
-SOCIAL_AUTH_VK_OAUTH2_SECRET = 'qNOrYzVRAoxq0uKqrd1r'  # Защищённый ключ
+SOCIAL_AUTH_VK_OAUTH2_KEY = '8112501'# ID приложения
+SOCIAL_AUTH_VK_OAUTH2_SECRET = 'qNOrYzVRAoxq0uKqrd1r' # Защищённый ключ
 SOCIAL_AUTH_VK_OAUTH2_API_VERSION = '5.131'
 
-CRISPY_TEMPLATE_PACK = "bootstrap4"
+CRISPY_TEMPLATE_PACK = "bootstrap4" # https://django-crispy-forms.readthedocs.io/en/latest/install.html#template-packs
+
 LOG_FILE = BASE_DIR / "var" / "log" / "main_log.log"
 
-LOGGING = {
+LOGGING = {  # https://docs.python.org/3/library/logging.html#logrecord-attributes
     "version": 1,
     "disable_existing_loggers": False,
     "formatters": {
         "console": {
-            "format": "[%(pastime)s] %(levelname)s %(name)s (%(lineno)d)% (message)s"
+            "format": "[%(asctime)s] %(levelname)s %(name)s (%(lineno)d) %(message)s"
         },
     },
     "handlers": {
@@ -180,10 +200,26 @@ LOGGING = {
         "console": {"class": "logging.StreamHandler", "formatter": "console"},
     },
     "loggers": {
-        "django": {"level": "INFO", "handlers": ["console"]},
+        "django": {"level": "INFO", "handlers": ["console", 'file']},
         "mainapp": {
             "level": "DEBUG",
             "handlers": ["file"],
         },
     },
 }
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
+    }
+}
+
+CELERY_BROKER_URL = "redis://localhost:6379" # pip install "celery[redis]"
+CELERY_RESULT_BACKEND = "redis://localhost:6379"
+
+EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
+EMAIL_FILE_PATH = "var/email-messages/"
