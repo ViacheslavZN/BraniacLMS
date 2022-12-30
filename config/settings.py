@@ -37,13 +37,12 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-
     "markdownify.apps.MarkdownifyConfig",
     "django_extensions",
     "social_django",
-
     "mainapp",
     "authapp",
+    "crispy_forms",
 ]
 
 MIDDLEWARE = [
@@ -61,7 +60,7 @@ ROOT_URLCONF = "config.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": ['mainapp.templates'],
+        "DIRS": ['templates'],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -159,3 +158,32 @@ SOCIAL_AUTH_GITHUB_SECRET = "cae481533ab73098c4bb11fbe73a46c847dfaa32"
 SOCIAL_AUTH_VK_OAUTH2_KEY = '8112501'  # ID приложения
 SOCIAL_AUTH_VK_OAUTH2_SECRET = 'qNOrYzVRAoxq0uKqrd1r'  # Защищённый ключ
 SOCIAL_AUTH_VK_OAUTH2_API_VERSION = '5.131'
+
+CRISPY_TEMPLATE_PACK = "bootstrap4"
+LOG_FILE = BASE_DIR / "var" / "log" / "main_log.log"
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "console": {
+            "format": "[%(pastime)s] %(levelname)s %(name)s (%(lineno)d)% (message)s"
+        },
+    },
+    "handlers": {
+        "file": {
+            "level": "DEBUG",
+            "class": "logging.FileHandler",
+            "filename": LOG_FILE,
+            "formatter": "console",
+        },
+        "console": {"class": "logging.StreamHandler", "formatter": "console"},
+    },
+    "loggers": {
+        "django": {"level": "INFO", "handlers": ["console"]},
+        "mainapp": {
+            "level": "DEBUG",
+            "handlers": ["file"],
+        },
+    },
+}

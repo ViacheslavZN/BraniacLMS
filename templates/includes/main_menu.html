@@ -31,14 +31,16 @@
           </a>
           <div class="dropdown-menu" aria-labelledby="ddProfile">
             <a class="dropdown-item"
-              href="{% url 'authapp:profile_edit' %}">Редактировать
+              href="{% url 'authapp:profile_edit' pk=request.user.pk %}">Редактировать
               профиль</a>
             <a class="dropdown-item" href="#">Мои курсы</a>
             <div class="dropdown-divider"></div>
             <a class="dropdown-item" href="#">Модерация</a>
             {% if user.is_superuser %}
-            <a class="dropdown-item" href="#">Административный
+            <a class="dropdown-item" href="{% url 'admin:index' %}">Административный
               раздел</a>
+            <a class="dropdown-item" href="{% url 'mainapp:log_view' %}"
+              target="_blank">Лог</a>
             {% endif %}
             <div class="dropdown-divider"></div>
             <a class="dropdown-item" href="{% url 'authapp:logout' %}">Выход</a>
@@ -58,4 +60,4 @@
           href="#">🇬🇧</a></span>
     </div>
   </div>
-</nav>
+</nav>>
